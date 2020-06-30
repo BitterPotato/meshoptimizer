@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "../extern/fast_obj.h"
-#include "miniz.h"
+#include "../extern/sdeflh.h"
 
 // This file uses assert() to verify algorithm correctness
 #undef NDEBUG
@@ -566,9 +566,9 @@ void optimize(const Mesh& mesh, const char* name, void (*optf)(Mesh& mesh))
 template <typename T>
 size_t compress(const std::vector<T>& data)
 {
-	std::vector<unsigned char> cbuf(tdefl_compress_bound(data.size() * sizeof(T)));
-	unsigned int flags = tdefl_create_comp_flags_from_zip_params(MZ_DEFAULT_LEVEL, 15, MZ_DEFAULT_STRATEGY);
-	return tdefl_compress_mem_to_mem(&cbuf[0], cbuf.size(), &data[0], data.size() * sizeof(T), flags);
+	std::vector<unsigned char> cbuf(sdefl_bound(data.size() * sizeof(T)));
+	sdefl s = {};
+	return sdeflate(&s, &cbuf[0], reinterpret_cast<const unsigned char*>(&data[0]), data.size() * sizeof(T), 8);
 }
 
 void encodeIndex(const Mesh& mesh, char desc)
